@@ -1,0 +1,105 @@
+@main("Navigation was never this easy!") {
+
+    <style>
+    #map { position: absolute ;
+    width: 100% ;
+    height: 100% ; }
+    </style>
+
+    <div id="map"></div>
+
+
+    <script>
+            var fromMarker = null;
+            var toMarker = null;
+
+            //var map = L.map('map').setView([43.7328, 7.4197], 15);
+            var map = L.map('map').setView([48.7833, 9.1833], 12);
+            //map.on('click', addMarker);
+
+            L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+                attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+                maxZoom: 18,
+                id: 'boldtrn.cigxggezk00b8stlyll8ad3qc',
+                accessToken: 'pk.eyJ1IjoiYm9sZHRybiIsImEiOiJjaWd4Z2dmNXYwMGJ4dXhtN3V3bXh0dW83In0.OoBZEf7QDFJiSwAGPfI2tA'
+            }).addTo(map);
+
+            var router = L.Routing.boldtrn({});
+
+            var BoldtrnPlan = L.Routing.Plan.extend({
+                createGeocoders: function() {
+                    var container = L.Routing.Plan.prototype.createGeocoders.call(this);
+                    var carBtn = createRadioButton('vehicle', 'car', 'Car', container, true);
+                    var pedBtn = createRadioButton('vehicle', 'ped', 'Pedestrian', container, false);
+                    var fastBtn = createRadioButton('weight', 'fastest', 'Fastest', container, true);
+                    var shortBtn = createRadioButton('weight', 'shortest', 'Shortest', container, false);
+
+                    L.DomEvent.on(carBtn, 'click', function() {
+                        router.updateVehicle('car');
+                    });
+
+                    L.DomEvent.on(pedBtn, 'click', function() {
+                        router.updateVehicle('ped');
+                    });
+
+                    L.DomEvent.on(fastBtn, 'click', function() {
+                        router.updateWeight('fastest');
+                    });
+
+                    L.DomEvent.on(shortBtn, 'click', function() {
+                        router.updateWeight('shortest');
+                    });
+
+                    return container;
+                }
+            });
+
+            var plan = new BoldtrnPlan([
+                        L.latLng(48.746, 8.869),
+                        L.latLng(48.784105, 9.178690)
+                    ], {
+                        geocoder: L.Control.Geocoder.nominatim(),
+                        router: L.Routing.boldtrn({})
+                    }),
+                    control = L.Routing.control({
+                        plan: plan,
+                        router: router
+                    }).addTo(map);
+
+/*
+            L.Routing.control({
+                waypoints: [
+                    L.latLng(48.746, 8.869),
+                    L.latLng(48.784105, 9.178690)
+                ],
+                routeWhileDragging: false,
+                geocoder: L.Control.Geocoder.nominatim(),
+                router: L.Routing.boldtrn({})
+            }).addTo(map);
+
+            createButton("Test", control);
+*/
+            function createButton(label, container) {
+                var btn = L.DomUtil.create('button', '', container);
+                btn.setAttribute('type', 'button');
+                btn.innerHTML = label;
+                return btn;
+            }
+
+            function createRadioButton(name, value, label, container, selected) {
+                var span = L.DomUtil.create('span', '', container);
+                var radioBtn = L.DomUtil.create('input', 'radioControl', span);
+                radioBtn.setAttribute('id', value);
+                radioBtn.setAttribute('type', 'radio');
+                radioBtn.setAttribute('name', name);
+                radioBtn.setAttribute('value', value);
+                if(selected){
+                    radioBtn.setAttribute('checked', 'checked');
+                }
+                var labelEl = L.DomUtil.create('span', '', span);
+                labelEl.innerHTML = label;
+                return span;
+            }
+
+    </script>
+}
