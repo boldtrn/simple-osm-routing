@@ -7,9 +7,7 @@ import boldtrn.routing.weight.FastestCarWeight;
 import boldtrn.routing.weight.FastestPedWeight;
 import boldtrn.routing.weight.ShortestDistanceWeight;
 import boldtrn.routing.weight.Weight;
-import boldtrn.storage.Edge;
 import boldtrn.storage.Graph;
-import boldtrn.storage.Node;
 import play.Logger;
 
 import java.util.*;
@@ -51,7 +49,7 @@ public class Dijkstra {
 
             if (isEndNode(currentNode, toIndex)) {
                 Logger.info("Found a shortest path");
-                return getPathFromNode(currentNode);
+                return getPathFromNode(currentNode, dGraph);
 
             }
 
@@ -86,7 +84,7 @@ public class Dijkstra {
         return node.index == toIndex;
     }
 
-    public static Route getPathFromNode(DijkstraNode node) {
-        return new Route(node);
+    public static Route getPathFromNode(DijkstraNode node, DijkstraGraph graph) {
+        return new Route(node, graph);
     }
 }

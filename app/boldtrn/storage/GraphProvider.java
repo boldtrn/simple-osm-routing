@@ -29,9 +29,9 @@ public enum GraphProvider {
     public void reloadGraph(){
         graph = null;
 
-        //File osmFile = Play.application().getFile("/conf/germany-latest.osm.pbf");
+        File osmFile = Play.application().getFile("/conf/germany-latest.osm.pbf");
         //File osmFile = Play.application().getFile("/conf/baden-wuerttemberg-latest.osm.pbf");
-        File osmFile = Play.application().getFile("/conf/stuttgart-regbez-latest.osm.pbf");
+        //File osmFile = Play.application().getFile("/conf/stuttgart-regbez-latest.osm.pbf");
         //File osmFile = Play.application().getFile("/conf/monaco-latest.osm.pbf");
 
         //File osmFile = new File("stuttgart-regbez-latest.osm.pbf");

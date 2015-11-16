@@ -3,6 +3,7 @@ package controllers;
 import boldtrn.routing.Dijkstra;
 import boldtrn.routing.Route;
 import boldtrn.storage.Graph;
+import boldtrn.storage.GraphUsingObjects;
 import boldtrn.storage.GraphProvider;
 import boldtrn.storage.Node;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -12,8 +13,6 @@ import play.libs.Json;
 import play.mvc.*;
 
 import views.html.*;
-
-import java.util.List;
 
 public class Application extends Controller {
 
@@ -30,11 +29,11 @@ public class Application extends Controller {
 
     public Result readGraph() {
 
-        Logger.debug("Called the read Graph method!");
+        Logger.debug("Called the read GraphUsingObjects method!");
 
         GraphProvider.INSTANCE.reloadGraph();
 
-        return ok(readGraph.render("Reading the Graph"));
+        return ok(readGraph.render("Reading the GraphUsingObjects"));
     }
 
     public Result route(String vehicle, String weight, double fromLat, double fromLon, double toLat, double toLon) {
@@ -55,8 +54,9 @@ public class Application extends Controller {
 
         Route route = null;
         try {
-            route = Dijkstra.shortestPath(fromIndex, toIndex, graph, false, false);
+            route = Dijkstra.shortestPath(fromIndex, toIndex, graph, car, fastest);
         } catch (Exception e) {
+            e.printStackTrace();
             result.put("status", "err");
             result.put("message", e.getMessage());
             return ok(result);
@@ -65,7 +65,7 @@ public class Application extends Controller {
         result.put("status", "ok");
         ArrayNode coordinates = result.arrayNode();
 
-        for (Node node: route.nodes) {
+        for (Route.RouteNode node: route.nodes) {
             ObjectNode coordinate = Json.newObject();
             coordinate.put("lat", node.lat);
             coordinate.put("lon", node.lon);

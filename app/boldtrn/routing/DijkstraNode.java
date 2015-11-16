@@ -12,27 +12,20 @@ public class DijkstraNode implements Comparable {
     public boolean visited = false;
     public double distance = Double.POSITIVE_INFINITY;
     public DijkstraNode source = null;
-    public final Node node;
     public final int index;
 
-    public DijkstraNode(Node node, int index) {
-        this.node = node;
+    public DijkstraNode(int index) {
         this.index = index;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof DijkstraNode && this.node.osmId == ((DijkstraNode) obj).node.osmId;
+        return obj instanceof DijkstraNode && this.index == ((DijkstraNode) obj).index;
     }
 
     @NotNull
     @Override
     public int compareTo(Object o) {
         return (int) (this.distance - ((DijkstraNode) o).distance);
-    }
-
-    @Override
-    public String toString() {
-        return node.toString();
     }
 }

@@ -4,8 +4,10 @@ import boldtrn.routing.acceptor.Acceptor;
 import boldtrn.routing.weight.Weight;
 import boldtrn.storage.Edge;
 import boldtrn.storage.Graph;
+import boldtrn.storage.GraphUsingObjects;
 import boldtrn.storage.Node;
-import play.Logger;
+import boldtrn.storage.acessor.EdgeAccess;
+import boldtrn.storage.acessor.NodeAccess;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,12 +24,11 @@ public class DijkstraGraph {
 
         this.graph = graph;
 
-        Node[] nodes = graph.getNodes();
-        dNodes = new DijkstraNode[nodes.length];
+        int nodeCount = graph.getNodeCount();
+        dNodes = new DijkstraNode[nodeCount];
 
-        for (int i = 0; i < nodes.length; i++) {
-            Node node = nodes[i];
-            DijkstraNode dNode = new DijkstraNode(node, i);
+        for (int i = 0; i < nodeCount; i++) {
+            DijkstraNode dNode = new DijkstraNode(i);
             dNodes[i] = dNode;
         }
 
@@ -43,15 +44,17 @@ public class DijkstraGraph {
 
     public Set<DijkstraNode> getUnvisitedNeighborsWithGreaterDistance(int nodeIndex, double distance, Weight weight, Acceptor acceptor) {
         DijkstraNode fromNode = dNodes[nodeIndex];
-        int edgeCount = fromNode.node.getEdgeCount();
-        int edgeIndex = fromNode.node.getEdgeIndex();
+        NodeAccess fromNodeAccess = graph.getNodeAccess(nodeIndex);
+        int edgeCount = fromNodeAccess.getEdgeCount();
+        int edgeIndex = fromNodeAccess.getEdgeOffset();
+
         Set<DijkstraNode> neighbors = new HashSet<>(edgeCount/2);
 
         for (int i = 0; i < edgeCount; i++) {
-            Edge edge = graph.getEdge(edgeIndex + i);
+            EdgeAccess edge = graph.getEdgeAccess(edgeIndex + i);
             if (!acceptor.accept(edge))
                 continue;
-            DijkstraNode toNode = dNodes[edge.toIndex];
+            DijkstraNode toNode = dNodes[edge.toIndex()];
             if (toNode.visited)
                 continue;
 
@@ -74,6 +77,10 @@ public class DijkstraGraph {
             dNodes[i] = null;
         }
         super.finalize();
+    }
+
+    public NodeAccess getNodeAccess(int index){
+        return graph.getNodeAccess(index);
     }
 
 }

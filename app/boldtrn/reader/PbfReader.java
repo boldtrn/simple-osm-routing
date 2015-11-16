@@ -1,7 +1,8 @@
 package boldtrn.reader;
 
-import boldtrn.misc.ObjectSizeFetcher;
 import boldtrn.storage.Graph;
+import boldtrn.storage.GraphUsingArray;
+import boldtrn.storage.GraphUsingObjects;
 import com.graphhopper.coll.GHLongIntBTree;
 import com.graphhopper.coll.LongIntMap;
 import com.graphhopper.reader.*;
@@ -11,10 +12,6 @@ import play.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.graphhopper.util.Helper.nf;
 
 /**
  * Created by robin on 05/11/15.
@@ -45,7 +42,7 @@ public class PbfReader implements DataReader {
         preProcessAndInitGraph();
         Logger.info("Pre Processing Finished");
         generateGraph();
-        Logger.info("Graph was generated!");
+        Logger.info("GraphUsingObjects was generated!");
     }
 
     protected void generateGraph() {
@@ -57,7 +54,7 @@ public class PbfReader implements DataReader {
             int nodeCounter = 0;
             int wayCounter = 0;
 
-            Logger.info("Start to create the Graph. Currently "+Helper.getMemInfo());
+            Logger.info("Start to create the GraphUsingObjects. Currently "+Helper.getMemInfo());
 
             OSMElement item;
             while ((item = in.getNext()) != null) {
@@ -121,14 +118,14 @@ public class PbfReader implements DataReader {
 
                 if (item.isType(OSMElement.WAY)) {
                     final OSMWay way = (OSMWay) item;
-                    if (Graph.isValid(way)) {
+                    if (GraphUsingObjects.isValid(way)) {
                         TLongList wayNodes = way.getNodes();
                         int size = wayNodes.size();
                         for (int i = 0; i < size; i++) {
                             long key = wayNodes.get(i);
 
                             int add;
-                            if (Graph.isOneWay(way)) {
+                            if (GraphUsingObjects.wayIsOneway(way)) {
                                 add = 1;
                             } else {
                                 add = 2;
@@ -168,9 +165,10 @@ public class PbfReader implements DataReader {
             }
             */
             }
-            //Logger.info("The Graph has " + nodeMap.size() + " nodes and " + edgeCounter + " number of edges");
-            Logger.info("The Graph has " + nodeMap.getSize() + " nodes and " + edgeCounter + " number of edges");
-            graph = new Graph(pbfFile.getName(), (int) nodeMap.getSize(), edgeCounter);
+            //Logger.info("The GraphUsingObjects has " + nodeMap.size() + " nodes and " + edgeCounter + " number of edges");
+            Logger.info("The GraphUsingObjects has " + nodeMap.getSize() + " nodes and " + edgeCounter + " number of edges");
+            //graph = new GraphUsingObjects(pbfFile.getName(), (int) nodeMap.getSize(), edgeCounter);
+            graph = new GraphUsingArray(pbfFile.getName(), (int) nodeMap.getSize(), edgeCounter);
         } catch (Exception e) {
             Logger.error(e.getMessage(), e);
         } finally {
