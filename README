@@ -1,4 +1,6 @@
-This is your new Play application
-=================================
+Run with:
 
-This file will be packaged with your application, when using `activator dist`.
+sbt run -Xms3072M -Xmx6144M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M
+
+visit:
+http://localhost:9000/map
