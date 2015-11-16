@@ -1,5 +1,10 @@
-Run with:
+Add an OSM File to:
+`app/conf/`
 
+And set the Path in the GraphProvider.java
+
+Run with:
+(You have to install sbt :/)
 sbt run -Xms3072M -Xmx6144M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M
 
 visit:
