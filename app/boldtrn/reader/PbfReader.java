@@ -166,7 +166,7 @@ public class PbfReader implements DataReader {
             */
             }
             //Logger.info("The GraphUsingObjects has " + nodeMap.size() + " nodes and " + edgeCounter + " number of edges");
-            Logger.info("The GraphUsingObjects has " + nodeMap.getSize() + " nodes and " + edgeCounter + " number of edges");
+            Logger.info("The Graph has " + nodeMap.getSize() + " nodes and " + edgeCounter + " number of edges");
             //graph = new GraphUsingObjects(pbfFile.getName(), (int) nodeMap.getSize(), edgeCounter);
             graph = new GraphUsingArray(pbfFile.getName(), (int) nodeMap.getSize(), edgeCounter);
         } catch (Exception e) {

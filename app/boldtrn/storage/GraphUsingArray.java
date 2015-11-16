@@ -10,21 +10,21 @@ import play.Logger;
  */
 public class GraphUsingArray extends Graph {
 
-    public static final int OSMID_UPPER = 0;
-    public static final int OSMID_LOWER = 1;
-    public static final int LAT_UPPER = 2;
-    public static final int LAT_LOWER = 3;
-    public static final int LON_UPPER = 4;
-    public static final int LON_LOWER = 5;
-    public static final int EDGE_COUNT = 6;
-    public static final int EDGE_OFFSET = 7;
+    //public static final int OSMID_UPPER = 0;
+    //public static final int OSMID_LOWER = 1;
+    public static final int LAT_UPPER = 0;
+    public static final int LAT_LOWER = 1;
+    public static final int LON_UPPER = 2;
+    public static final int LON_LOWER = 3;
+    public static final int EDGE_COUNT = 4;
+    public static final int EDGE_OFFSET = 5;
 
-    public static final int TO_INDEX = 2;
-    public static final int DISTANCE_UPPER = 3;
-    public static final int DISTANCE_LOWER = 4;
-    public static final int SPEED = 5;
-    public static final int CARS_ALLOWED = 6;
-    public static final int PEDESTRIANS_ALLOWED = 7;
+    public static final int TO_INDEX = 0;
+    public static final int DISTANCE_UPPER = 1;
+    public static final int DISTANCE_LOWER = 2;
+    public static final int SPEED = 3;
+    public static final int CARS_ALLOWED = 4;
+    public static final int PEDESTRIANS_ALLOWED = 5;
 
 
     protected final int[][] nodes;
@@ -40,9 +40,9 @@ public class GraphUsingArray extends Graph {
     public GraphUsingArray(String name, int nodeCount, int edgeCount) {
         super(name);
         nodeCreator = new NodeCreator();
-        nodes = new int[nodeCount][8];
+        nodes = new int[nodeCount][6];
         edgeCreator = new EdgeCreator();
-        edges = new int[edgeCount][8];
+        edges = new int[edgeCount][6];
         Logger.info("Creating Graph with "+nodeCount+" Nodes and "+edgeCount+" Edges");
     }
 
@@ -197,7 +197,7 @@ public class GraphUsingArray extends Graph {
     public class EdgeCreator extends Creator {
 
         public void create(int index, long osmId, int toIndex, double distance, int speed, boolean carsAllowed, boolean pedestriansAllowed) {
-            saveLongToArray(index, OSMID_UPPER, OSMID_LOWER, osmId);
+            //saveLongToArray(index, OSMID_UPPER, OSMID_LOWER, osmId);
 
             edges[index][TO_INDEX] = toIndex;
 
@@ -218,7 +218,7 @@ public class GraphUsingArray extends Graph {
     public class NodeCreator extends Creator {
 
         public void create(int index, long osmId, double lat, double lon) {
-            saveLongToArray(index, OSMID_UPPER, OSMID_LOWER, osmId);
+            //saveLongToArray(index, OSMID_UPPER, OSMID_LOWER, osmId);
 
             long latAsLong = Double.doubleToLongBits(lat);
             saveLongToArray(index, LAT_UPPER, LAT_LOWER, latAsLong);
