@@ -79,7 +79,7 @@ public class PbfReader implements DataReader {
                 }
 
                 if (wayCounter == 500000) {
-                    System.out.println("500000 Ways created");
+                    Logger.debug("500000 Ways created");
                     wayCounter = 0;
                 }
             }
@@ -148,7 +148,7 @@ public class PbfReader implements DataReader {
                 }
 
                 if (wayCounter == 1000000) {
-                    System.out.println("1000000 Ways preprocessed");
+                    Logger.debug("1000000 Ways preprocessed");
                     wayCounter = 0;
                 }
 

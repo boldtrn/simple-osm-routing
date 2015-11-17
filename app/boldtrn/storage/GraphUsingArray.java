@@ -22,17 +22,20 @@ public class GraphUsingArray extends Graph {
     public static final int TO_INDEX = 0;
     public static final int DISTANCE_UPPER = 1;
     public static final int DISTANCE_LOWER = 2;
+    public static final int EDGE_DATA = 3;
     public static final int SPEED = 3;
-    public static final int CARS_ALLOWED = 4;
-    public static final int PEDESTRIANS_ALLOWED = 5;
+    public static final int CARS_ALLOWED = 1;
+    public static final int PEDESTRIANS_ALLOWED = 1;
 
+    private static final int offsetPerNode = 6;
+    private static final int offsetPerEdge = 4;
 
-    protected final int[][] nodes;
+    protected final int[] nodes;
     protected int nodeCounter = 0;
     protected int edgeOffset = 0;
     private final NodeCreator nodeCreator;
 
-    protected final int[][] edges;
+    protected final int[] edges;
     private final EdgeCreator edgeCreator;
 
     private NodeAccess nodeAccess = new ArrayNodeAcces(0);
@@ -40,10 +43,14 @@ public class GraphUsingArray extends Graph {
     public GraphUsingArray(String name, int nodeCount, int edgeCount) {
         super(name);
         nodeCreator = new NodeCreator();
-        nodes = new int[nodeCount][6];
+        int nodeArrSize = nodeCount * offsetPerNode;
+        Logger.info("Creating Node Array with: " + nodeArrSize + " entries");
+        nodes = new int[nodeArrSize];
         edgeCreator = new EdgeCreator();
-        edges = new int[edgeCount][6];
-        Logger.info("Creating Graph with "+nodeCount+" Nodes and "+edgeCount+" Edges");
+        int edgeArrSize = edgeCount * offsetPerEdge;
+        Logger.info("Creating Edge Array with: " + edgeArrSize + " entries");
+        edges = new int[edgeArrSize];
+        Logger.info("Creating Graph with " + nodeCount + " Nodes and " + edgeCount + " Edges");
     }
 
     @Override
@@ -91,7 +98,7 @@ public class GraphUsingArray extends Graph {
     public int findClosestIndex(double lat, double lon) {
         int closestIndex = -1;
         double distance = Double.POSITIVE_INFINITY;
-        for (int i = 0; i < nodes.length; i++) {
+        for (int i = 0; i < nodeCounter; i++) {
             NodeAccess nodeAccess = new ArrayNodeAcces(i);
             double tmpDist = distCalc.calcNormalizedDist(lat, lon, nodeAccess.getLat(), nodeAccess.getLon());
             if (tmpDist < distance) {
@@ -109,7 +116,7 @@ public class GraphUsingArray extends Graph {
         private final int index;
 
         public ArrayNodeAcces(int index) {
-            this.index = index;
+            this.index = index * offsetPerNode;
         }
 
         public ArrayNodeAcces get(int index) {
@@ -125,24 +132,24 @@ public class GraphUsingArray extends Graph {
         }
 
         public int addEdgeWithIndex() {
-            int edgeIndex = nodes[this.index][EDGE_COUNT] + nodes[this.index][EDGE_OFFSET];
-            nodes[this.index][EDGE_COUNT] = nodes[this.index][EDGE_COUNT] + 1;
+            int edgeIndex = nodes[this.index + EDGE_COUNT] + nodes[this.index + EDGE_OFFSET];
+            nodes[this.index + EDGE_COUNT] = nodes[this.index + EDGE_COUNT] + 1;
             return edgeIndex;
         }
 
         @Override
         public int getEdgeCount() {
-            return nodes[index][EDGE_COUNT];
+            return nodes[index + EDGE_COUNT];
         }
 
         @Override
         public int getEdgeOffset() {
-            return nodes[index][EDGE_OFFSET];
+            return nodes[index + EDGE_OFFSET];
         }
 
         private double getDouble(int upperIndex, int lowerIndex) {
-            int upper = nodes[index][upperIndex];
-            int lower = nodes[index][lowerIndex];
+            int upper = nodes[index + upperIndex];
+            int lower = nodes[index + lowerIndex];
             return Double.longBitsToDouble(((long) upper << 32) | (lower & 0xFFFFFFFFL));
         }
 
@@ -153,7 +160,7 @@ public class GraphUsingArray extends Graph {
         private final int index;
 
         public ArrayEdgeAccess(int index) {
-            this.index = index;
+            this.index = index * offsetPerEdge;
         }
 
         @Override
@@ -163,7 +170,7 @@ public class GraphUsingArray extends Graph {
 
         @Override
         public int toIndex() {
-            return edges[this.index][TO_INDEX];
+            return edges[this.index + TO_INDEX];
         }
 
         @Override
@@ -173,22 +180,22 @@ public class GraphUsingArray extends Graph {
 
         @Override
         public short speed() {
-            return (short) edges[this.index][SPEED];
+            return (short) (edges[this.index + EDGE_DATA] % 1000);
         }
 
         @Override
         public boolean pedestriansAllowed() {
-            return edges[this.index][PEDESTRIANS_ALLOWED] == 1;
+            return (edges[this.index + EDGE_DATA] / 10000) == 1;
         }
 
         @Override
         public boolean carsAllowed() {
-            return edges[this.index][CARS_ALLOWED] == 1;
+            return ((edges[this.index + EDGE_DATA] / 1000) % 10) == 1;
         }
 
         private double getDouble(int upperIndex, int lowerIndex) {
-            int upper = edges[this.index][upperIndex];
-            int lower = edges[this.index][lowerIndex];
+            int upper = edges[this.index + upperIndex];
+            int lower = edges[this.index + lowerIndex];
             return Double.longBitsToDouble(((long) upper << 32) | (lower & 0xFFFFFFFFL));
         }
 
@@ -199,19 +206,22 @@ public class GraphUsingArray extends Graph {
         public void create(int index, long osmId, int toIndex, double distance, int speed, boolean carsAllowed, boolean pedestriansAllowed) {
             //saveLongToArray(index, OSMID_UPPER, OSMID_LOWER, osmId);
 
-            edges[index][TO_INDEX] = toIndex;
+            index = index * offsetPerEdge;
+
+            edges[index + TO_INDEX] = toIndex;
 
             long distanceAsLong = Double.doubleToLongBits(distance);
             saveLongToArray(index, DISTANCE_UPPER, DISTANCE_LOWER, distanceAsLong);
 
-            edges[index][SPEED] = speed;
-            edges[index][CARS_ALLOWED] = (carsAllowed) ? 1 : 0;
-            edges[index][PEDESTRIANS_ALLOWED] = (pedestriansAllowed) ? 1 : 0;
+            int carsAllowedInt = (carsAllowed) ? 1000 : 0;
+            int pedsAllowedInt = (pedestriansAllowed) ? 10000 : 0;
+
+            edges[index + EDGE_DATA] = pedsAllowedInt + carsAllowedInt + speed;
         }
 
         protected void saveLongToArray(int index, int upper, int lower, long value) {
-            edges[index][upper] = (int) (value >> 32);
-            edges[index][lower] = (int) (value);
+            edges[index + upper] = (int) (value >> 32);
+            edges[index + lower] = (int) (value);
         }
     }
 
@@ -220,19 +230,21 @@ public class GraphUsingArray extends Graph {
         public void create(int index, long osmId, double lat, double lon) {
             //saveLongToArray(index, OSMID_UPPER, OSMID_LOWER, osmId);
 
+            index = index * offsetPerNode;
+
             long latAsLong = Double.doubleToLongBits(lat);
             saveLongToArray(index, LAT_UPPER, LAT_LOWER, latAsLong);
 
             long lonAsLong = Double.doubleToLongBits(lon);
             saveLongToArray(index, LON_UPPER, LON_LOWER, lonAsLong);
 
-            nodes[index][EDGE_COUNT] = 0;
-            nodes[index][EDGE_OFFSET] = edgeOffset;
+            nodes[index + EDGE_COUNT] = 0;
+            nodes[index + EDGE_OFFSET] = edgeOffset;
         }
 
         protected void saveLongToArray(int index, int upper, int lower, long value) {
-            nodes[index][upper] = (int) (value >> 32);
-            nodes[index][lower] = (int) (value);
+            nodes[index + upper] = (int) (value >> 32);
+            nodes[index + lower] = (int) (value);
         }
     }
 
