@@ -24,16 +24,15 @@ public abstract class Graph {
     public static final short carMaxSpeed = 130;
 
     protected static final Set<String> restrictedHighwayTags = new HashSet<>(Arrays.asList("private", "ford", "no", "restricted", "military"));
-    protected final Set<String> pedestrianHighwayTags = new HashSet<>();
-    protected final Map<String, Short> carSpeedMap = new HashMap<>();
-    protected final Set<String> sidewalkTags = new HashSet<>();
+    protected static final Set<String> pedestrianHighwayTags = getPedestrianHighwayTags();
+    protected static final Map<String, Short> carSpeedMap = getCarSpeedMap();
+    protected static final Set<String> sidewalkTags = getSidewalkTags();
 
     protected final LongIntMap osmIdToIndex;
 
     protected Graph(String name){
         this.name = name;
         osmIdToIndex = new GHLongIntBTree(200);
-        initTagSets();
     }
 
     public abstract void addNode(OSMNode osmNode, int numberOfEdges);
@@ -76,7 +75,7 @@ public abstract class Graph {
 
 
 
-    protected short getSpeed(OSMWay way) {
+    public static short getSpeed(OSMWay way) {
         String maxSpeed = way.getTag("maxspeed");
 
         if (maxSpeed == null || maxSpeed.isEmpty())
@@ -94,7 +93,7 @@ public abstract class Graph {
         }
     }
 
-    protected boolean wayIsCarAllowed(OSMWay way) {
+    public static boolean wayIsCarAllowed(OSMWay way) {
         String highway = way.getTag("highway");
         if(carSpeedMap.containsKey(highway))
             return true;
@@ -102,7 +101,7 @@ public abstract class Graph {
         return false;
     }
 
-    protected boolean wayIsPedestrianAllowed(OSMWay way) {
+    public static boolean wayIsPedestrianAllowed(OSMWay way) {
         String highway = way.getTag("highway");
         if (pedestrianHighwayTags.contains(highway))
             return true;
@@ -136,7 +135,9 @@ public abstract class Graph {
         return true;
     }
 
-    protected void initTagSets() {
+    protected static Set<String> getPedestrianHighwayTags(){
+        Set<String> pedestrianHighwayTags = new HashSet<>();
+
         pedestrianHighwayTags.add("living_street");
         pedestrianHighwayTags.add("pedestrian");
         pedestrianHighwayTags.add("track");
@@ -148,6 +149,23 @@ public abstract class Graph {
         pedestrianHighwayTags.add("cycleway");
         pedestrianHighwayTags.add("unclassified");
         pedestrianHighwayTags.add("road");
+
+        return pedestrianHighwayTags;
+    }
+
+    protected static Set<String> getSidewalkTags(){
+        Set<String> sidewalkTags = new HashSet<>();
+
+        sidewalkTags.add("both");
+        sidewalkTags.add("left");
+        sidewalkTags.add("right");
+        sidewalkTags.add("yes");
+
+        return sidewalkTags;
+    }
+
+    protected static Map<String, Short> getCarSpeedMap(){
+        Map<String, Short> carSpeedMap = new HashMap<>();
 
         // autobahn
         carSpeedMap.put("motorway", (short) 100);
@@ -175,10 +193,6 @@ public abstract class Graph {
         // forestry stuff
         carSpeedMap.put("track", (short) 15);
 
-        sidewalkTags.add("both");
-        sidewalkTags.add("left");
-        sidewalkTags.add("right");
-        sidewalkTags.add("yes");
+        return carSpeedMap;
     }
-
 }

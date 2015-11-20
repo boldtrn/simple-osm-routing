@@ -9,3 +9,10 @@ sbt run -Xms3072M -Xmx6144M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M
 
 visit:
 http://localhost:9000/map
+
+
+
+For Neo4j:
+
+You should run:
+`sudo ulimit 40000`

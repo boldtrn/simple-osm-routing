@@ -7,6 +7,10 @@ GET     /                           controllers.Application.index()
 
 GET     /readGraph                           controllers.Application.readGraph()
 
+GET     /neo                           controllers.Application.neoTest()
+
+GET     /neoRoute                           controllers.Application.neoRoute()
+
 GET     /route/:vehicle/:weight/:fromLat/:fromLon/:toLat/:toLon                           controllers.Application.route(vehicle:String, weight:String, fromLat: Double, fromLon: Double, toLat: Double, toLon: Double)
 
 GET     /map                           controllers.Application.showMap()
